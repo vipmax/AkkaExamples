@@ -1,0 +1,15 @@
+---
+- name: node1
+  ram: 2048
+  cpus: 2
+  ip: 192.168.55.11
+
+- name: node2
+  ram: 2048
+  cpus: 2
+  ip: 192.168.55.12
+
+- name: node3
+  ram: 2048
+  cpus: 2
+  ip: 192.168.55.13

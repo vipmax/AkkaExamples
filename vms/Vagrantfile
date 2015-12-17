@@ -1,0 +1,56 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Specify minimum Vagrant version and Vagrant API version
+  Vagrant.require_version ">= 1.6.0"
+  VAGRANTFILE_API_VERSION = "2"
+
+  # Require YAML module
+  require 'yaml'
+
+  # Read YAML file with box details
+  servers = YAML.load_file('cluster.yml')
+
+  # Create boxes
+  Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+    # Iterate through entries in YAML file
+    servers.each do |server|
+      config.vm.define server["name"] do |srv|
+        srv.vm.box = "ubuntu/trusty64"
+        srv.vm.hostname = server["name"]
+
+        srv.vm.provider :virtualbox do |vb|
+          vb.memory = server["ram"]
+          vb.cpus = server["cpus"]
+        end
+
+        srv.vm.network "private_network", ip: server["ip"]
+        srv.vm.network :forwarded_port, guest: 50070, host: 50070, auto_correct: true
+        srv.vm.network :forwarded_port, guest: 9000, host: 9000, auto_correct: true
+        srv.vm.network :forwarded_port, guest: 8080, host: 8080, auto_correct: true
+        srv.vm.network :forwarded_port, guest: 5050, host: 5050, auto_correct: true
+        srv.vm.network :forwarded_port, guest: 7077, host: 7077, auto_correct: true
+
+        srv.vm.synced_folder "../.", "/home/vagrant/project"
+
+        srv.vm.provision "shell", path: "install-sshkey.sh"
+
+        srv.vm.provision "shell" do |s|
+           update_hosts = ""
+           servers.each do |server2|
+              update_hosts = update_hosts + "echo '#{server2["ip"]} #{server2["name"]}'|tee --append /etc/hosts;"
+           end
+
+           s.inline = "rm /etc/hosts; touch /etc/hosts; #{update_hosts}"
+           s.privileged = true
+        end
+
+        # Enable provisioning with Ansible.
+        srv.vm.provision "ansible" do |ansible|
+           ansible.playbook = "provisioning/main.yml"
+        end
+      end
+    end
+  end
+

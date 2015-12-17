@@ -1,0 +1,11 @@
+java -cp target/AkkaExamples-1.0.jar:target/lib/* example1.ExampleRunner
+
+
+java -cp target/AkkaExamples-1.0.jar:target/lib/* example2.MasterRunner 127.0.0.1 127.0.0.1
+java -cp target/AkkaExamples-1.0.jar:target/lib/* example2.WorkerRunner 127.0.0.1 127.0.0.1
+
+
+java -cp target/AkkaExamples-1.0.jar:target/lib/* example2.MasterRunner 192.168.55.11 192.168.55.11
+java -cp target/AkkaExamples-1.0.jar:target/lib/* example2.WorkerRunner 192.168.55.11 192.168.55.12
+java -cp target/AkkaExamples-1.0.jar:target/lib/* example2.WorkerRunner 192.168.55.11 192.168.55.13
+
