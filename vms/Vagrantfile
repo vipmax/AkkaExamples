@@ -25,16 +25,12 @@
           vb.cpus = server["cpus"]
         end
 
-        srv.vm.network "private_network", ip: server["ip"]
-        srv.vm.network :forwarded_port, guest: 50070, host: 50070, auto_correct: true
-        srv.vm.network :forwarded_port, guest: 9000, host: 9000, auto_correct: true
-        srv.vm.network :forwarded_port, guest: 8080, host: 8080, auto_correct: true
-        srv.vm.network :forwarded_port, guest: 5050, host: 5050, auto_correct: true
-        srv.vm.network :forwarded_port, guest: 7077, host: 7077, auto_correct: true
-
+        srv.vm.network "public_network", ip: server["ip"]
+	
         srv.vm.synced_folder "../.", "/home/vagrant/project"
 
         srv.vm.provision "shell", path: "install-sshkey.sh"
+        srv.vm.provision "shell", path: "install-spark.sh"
 
         srv.vm.provision "shell" do |s|
            update_hosts = ""
@@ -46,10 +42,7 @@
            s.privileged = true
         end
 
-        # Enable provisioning with Ansible.
-        srv.vm.provision "ansible" do |ansible|
-           ansible.playbook = "provisioning/main.yml"
-        end
+
       end
     end
   end
